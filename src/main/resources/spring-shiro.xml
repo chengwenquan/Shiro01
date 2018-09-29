@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	<!-- 自动扫描包名 -->
+	<context:component-scan base-package="com.shiro" />
+
+	<!-- 配置shiro -->
+	<!-- 自定义的Realm  -->
+	<bean id="myRealm" class="com.shiro.realm.MyRealm"/>
+	<!-- 安全管理器 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="myRealm" />
+	</bean>
+	<!-- shiro过滤器 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager"/>
+		<!-- 身份认证失败跳转到login.jsp界面 -->
+		<property name="loginUrl" value="/login.jsp"/>
+		<!-- 权限认证失败跳转到的页面index.jsp -->
+		<property name="unauthorizedUrl" value="/index.jsp"/>
+		<!-- shiro过滤链 -->
+		<property name="filterChainDefinitions">
+			<value>
+				/doLogin = anon
+                /selGrade = authc
+                /delStudent = roles[root]
+                /updateStudent = perms["user:update"]
+			</value>
+		</property>
+	</bean>
+
+	<!-- 保证shiro内部的lifecycle函数的bean执行 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+	<!-- 开启shiro注解 -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager"/>
+	</bean>
+
+</beans>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.shiro.dao.UserDao">
+
+    <select id="selUserByUserName" resultType="com.shiro.entity.User">
+        select id,userName,password from t_user where userName = #{name}
+    </select>
+
+    <select id="selRolesByUserName" resultType="String">
+        select roleName from t_role where id in (select role from t_user where userName = #{name})
+    </select>
+
+    <select id="selPermissionsByUserName" resultType="String">
+        select permissionName from t_permission where roleId in (select role from t_user where userName = #{name})
+    </select>
+
+
+</mapper>
